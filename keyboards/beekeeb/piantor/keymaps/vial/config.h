@@ -6,3 +6,5 @@
 
 /* default layer count */
 #define DYNAMIC_KEYMAP_LAYER_COUNT 10
+
+#define COMBO_ONLY_FROM_LAYER 0

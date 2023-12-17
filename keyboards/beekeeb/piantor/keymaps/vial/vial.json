@@ -5,6 +5,52 @@
         "rows": 8,
         "cols": 6
     },
+    "customKeycodes": [
+        {"name": "../",
+            "title": "Parent dir",
+            "shortName": "B_DIRBACK"
+        },
+        {"name": "./",
+            "title": "Current dir",
+            "shortname": "B_CURRDIR"
+        },
+        {"name": "->",
+            "title": "Arrow",
+            "shortName": "B_ARROW"
+        },
+        {"name": "${_}",
+            "title": "Groovy String",
+            "shortName": "B_GROOVY_DOLLAR"
+        },
+        {"name": "NextWin",
+            "title": "Next Window(F16)",
+            "shortName": "B_NEXT_WINDOW"
+        },
+        {"name": "F3",
+            "title": "Find next(F3)",
+            "shortName": "B_FIND_NEXT"
+        },
+        {"name": "FloatWin",
+            "title": "Float window(F17)",
+            "shortName": "B_FLOAT_WINDOW"
+        },
+        {"name": "FullScreen",
+            "title": "Full Screen(F18)",
+            "shortName": "B_FULL_SCREEN"
+        },
+        {"name": "Display1",
+            "title": "Display 1(F13)",
+            "shortName": "B_DISPLAY_1"
+        },
+        {"name": "Display2",
+            "title": "Display 2(F14)",
+            "shortName": "B_DISPLAY_2"
+        },
+        {"name": "Display3",
+            "title": "Display 3(F15)",
+            "shortName": "B_DISPLAY_3"
+        }
+    ],
     "layouts": {
         "keymap": [
           [

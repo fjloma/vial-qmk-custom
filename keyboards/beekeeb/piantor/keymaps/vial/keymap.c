@@ -26,6 +26,91 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
+
+enum blender_keycode {
+    B_DIRBACK = SAFE_RANGE,
+    B_CURRDIR,
+    B_ARROW,
+    B_GROOVY_DOLLAR,
+    B_NEXT_WINDOW,
+    B_FIND_NEXT,
+    B_FLOAT_WINDOW,
+    B_FULL_SCREEN,
+    B_DISPLAY_1,
+    B_DISPLAY_2,
+    B_DISPLAY_3,
+};
+
+bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+	switch (keycode) {
+		case B_DIRBACK:
+            if (record->event.pressed) {
+                tap_code(KC_DOT);
+                tap_code(KC_DOT);
+                tap_code(KC_KP_SLASH);
+            }
+            return 0;
+		case B_CURRDIR:
+            if (record->event.pressed) {
+                tap_code(KC_DOT);
+                tap_code(KC_KP_SLASH);
+            }
+            return 0;
+        case B_ARROW:
+            if (record->event.pressed) {
+                tap_code(KC_SLASH);
+                tap_code(KC_NONUS_BACKSLASH);
+            }
+            return 0;
+        case B_GROOVY_DOLLAR:
+            if (record->event.pressed) {
+                tap_code16(LSFT(KC_4));
+                tap_code16(LALT(KC_QUOTE));
+                tap_code16(LALT(KC_BACKSLASH));
+                tap_code(KC_LEFT);
+            }
+            return 0;
+        case B_NEXT_WINDOW:
+            if (record->event.pressed) {
+                tap_code(KC_F16);
+            }
+            return 0;
+        case B_FIND_NEXT:
+            if (record->event.pressed) {
+                tap_code(KC_F3);
+            }
+            return 0;
+        case B_FLOAT_WINDOW:
+            if (record->event.pressed) {
+                tap_code(KC_F17);
+            }
+            return 0;
+        case B_FULL_SCREEN:
+            if (record->event.pressed) {
+                tap_code(KC_F18);
+            }
+            return 0;
+        case B_DISPLAY_1:
+            if (record->event.pressed) {
+                tap_code(KC_F13);
+            }
+            return 0;
+        case B_DISPLAY_2:
+            if (record->event.pressed) {
+                tap_code(KC_F14);
+            }
+            return 0;
+        case B_DISPLAY_3:
+            if (record->event.pressed) {
+                tap_code(KC_F15);
+            }
+            return 0;
+	}
+	return true;
+}
+
+
+
 #ifdef RGBLIGHT_ENABLE
 
 const rgblight_segment_t PROGMEM layer0_colors[] = RGBLIGHT_LAYER_SEGMENTS(
