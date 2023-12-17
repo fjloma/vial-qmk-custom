@@ -3,3 +3,4 @@ BACKLIGHT_ENABLE = yes
 BACKLIGHT_DRIVER = software
 LTO_ENABLE = yes
 DEBOUNCE_TYPE = sym_eager_pk
+CAPS_WORD_ENABLE = yes
