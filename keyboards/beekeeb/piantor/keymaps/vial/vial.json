@@ -49,6 +49,10 @@
         {"name": "Display3",
             "title": "Display 3(F15)",
             "shortName": "B_DISPLAY_3"
+        },
+        {"name": "Caps Word",
+            "title": "Caps Word",
+            "shortName": "B_CAPSWORD"
         }
     ],
     "layouts": {

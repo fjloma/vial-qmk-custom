@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-2.0
 
 #include QMK_KEYBOARD_H
+#include "quantum/keycodes.h"
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
@@ -28,7 +29,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 
 enum blender_keycode {
-    B_DIRBACK = SAFE_RANGE,
+    B_DIRBACK = QK_KB_0,
     B_CURRDIR,
     B_ARROW,
     B_GROOVY_DOLLAR,
@@ -39,6 +40,7 @@ enum blender_keycode {
     B_DISPLAY_1,
     B_DISPLAY_2,
     B_DISPLAY_3,
+    B_CAPSWORD
 };
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -49,19 +51,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code(KC_DOT);
                 tap_code(KC_KP_SLASH);
             }
-            return 0;
+            return false;
 		case B_CURRDIR:
             if (record->event.pressed) {
                 tap_code(KC_DOT);
                 tap_code(KC_KP_SLASH);
             }
-            return 0;
+            return false;
         case B_ARROW:
             if (record->event.pressed) {
                 tap_code(KC_SLASH);
                 tap_code(KC_NONUS_BACKSLASH);
             }
-            return 0;
+            return false;
         case B_GROOVY_DOLLAR:
             if (record->event.pressed) {
                 tap_code16(LSFT(KC_4));
@@ -69,42 +71,47 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 tap_code16(LALT(KC_BACKSLASH));
                 tap_code(KC_LEFT);
             }
-            return 0;
+            return false;
         case B_NEXT_WINDOW:
             if (record->event.pressed) {
                 tap_code(KC_F16);
             }
-            return 0;
+            return false;
         case B_FIND_NEXT:
             if (record->event.pressed) {
                 tap_code(KC_F3);
             }
-            return 0;
+            return false;
         case B_FLOAT_WINDOW:
             if (record->event.pressed) {
                 tap_code(KC_F17);
             }
-            return 0;
+            return false;
         case B_FULL_SCREEN:
             if (record->event.pressed) {
                 tap_code(KC_F18);
             }
-            return 0;
+            return false;
         case B_DISPLAY_1:
             if (record->event.pressed) {
                 tap_code(KC_F13);
             }
-            return 0;
+            return false;
         case B_DISPLAY_2:
             if (record->event.pressed) {
                 tap_code(KC_F14);
             }
-            return 0;
+            return false;
         case B_DISPLAY_3:
             if (record->event.pressed) {
                 tap_code(KC_F15);
             }
-            return 0;
+            return false;
+        case B_CAPSWORD:
+            if (record->event.pressed) {
+                tap_code16(QK_CAPS_WORD_TOGGLE);
+            }
+            return false;
 	}
 	return true;
 }
