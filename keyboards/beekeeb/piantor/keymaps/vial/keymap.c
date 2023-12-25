@@ -241,40 +241,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 		case B_DIRBACK:
             if (record->event.pressed) {
-		        unregister_mods(MOD_BIT(KC_RIGHT_SHIFT));
                 SEND_STRING("../");
-                //tap_code16(KC_DOT);
-                //tap_code16(KC_DOT);
-                //tap_code16(ES_SLSH);
             }
             return false;
 		case B_CURRDIR:
             if (record->event.pressed) {
-		        unregister_mods(MOD_BIT(KC_RIGHT_SHIFT));
                 SEND_STRING("./");
-                //tap_code16(KC_DOT);
-                //tap_code16(ES_SLSH);
             }
             return false;
         case B_ARROW:
             if (record->event.pressed) {
-		        //unregister_mods(MOD_BIT(KC_RIGHT_SHIFT));
-                clear_mods();
-                clear_oneshot_mods();
                 SEND_STRING("->");
-                //SEND_STRING("->");
-                //tap_code16(ES_SLSH);
-                //tap_code16(ES_RABK);
             }
             return false;
         case B_GROOVY_DOLLAR:
             if (record->event.pressed) {
-		        unregister_mods(MOD_BIT(KC_RIGHT_SHIFT));
                 SEND_STRING("${}" SS_TAP(X_LEFT));
-                //tap_code16(ES_DLR);
-                //tap_code16(ES_LCBR);
-                //tap_code16(ES_RCBR);
-                //tap_code(KC_LEFT);
             }
             return false;
 	}
