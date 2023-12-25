@@ -245,18 +245,38 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             }
             return false;
 	}
+
+    // toggle caps word on shift+space
+    static bool shift = false;
+    if (keycode == KC_RSFT) {
+        shift = record->event.pressed;
+    } else if (record->event.pressed && keycode == KC_SPC) {
+        if (shift) {
+            caps_word_toggle();
+        }
+    }
+
 	return true;
 }
 
 static uint32_t layer_blink_timer = 0;
+static uint32_t layer_blink_speed = 500;
+static bool left_blink = false;
+static bool right_blink = false;
+
 void matrix_scan_user(void) {
   layer_lock_task();
-  if (layer_blink_timer && timer_elapsed32(layer_blink_timer) > 500){
+
+  if (is_keyboard_master() && left_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
+    layer_blink_timer = timer_read32();
+    backlight_toggle();
+  } else if (!is_keyboard_master() && right_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
     layer_blink_timer = timer_read32();
     backlight_toggle();
   }
-}
 
+}
+/*
 void layer_lock_set_user(layer_state_t locked_layers) {
    if (locked_layers) {
        layer_blink_timer = timer_read32();
@@ -264,6 +284,32 @@ void layer_lock_set_user(layer_state_t locked_layers) {
        layer_blink_timer = 0;
    }
 }
+*/
+layer_state_t layer_state_set_user (layer_state_t state) {
+    right_blink = false;
+    left_blink = false;
+    layer_blink_timer = 0;
+
+    switch (get_highest_layer(state)) {
+    case _NAV:
+        right_blink = true;
+        left_blink = false;
+        layer_blink_timer = timer_read32();
+        break;
+    case _NUM:
+        right_blink = false;
+        left_blink = true;
+        layer_blink_timer = timer_read32();
+        break;
+    case _MOUS:
+        right_blink = true;
+        left_blink = true;
+        layer_blink_timer = timer_read32();
+        break;
+  }
+  return state;
+}
+
 
 /*
 enum combo_events {
