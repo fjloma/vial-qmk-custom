@@ -22,37 +22,9 @@
             "title": "Groovy String",
             "shortName": "B_GROOVY_DOLLAR"
         },
-        {"name": "NextWin",
-            "title": "Next Window(F16)",
-            "shortName": "B_NEXT_WINDOW"
-        },
-        {"name": "F3",
-            "title": "Find next(F3)",
-            "shortName": "B_FIND_NEXT"
-        },
-        {"name": "FloatWin",
-            "title": "Float window(F17)",
-            "shortName": "B_FLOAT_WINDOW"
-        },
-        {"name": "FullScreen",
-            "title": "Full Screen(F18)",
-            "shortName": "B_FULL_SCREEN"
-        },
-        {"name": "Display1",
-            "title": "Display 1(F13)",
-            "shortName": "B_DISPLAY_1"
-        },
-        {"name": "Display2",
-            "title": "Display 2(F14)",
-            "shortName": "B_DISPLAY_2"
-        },
-        {"name": "Display3",
-            "title": "Display 3(F15)",
-            "shortName": "B_DISPLAY_3"
-        },
-        {"name": "Caps Word",
-            "title": "Caps Word",
-            "shortName": "B_CAPSWORD"
+        {"name": "LayerLock",
+            "title": "LayerLock",
+            "shortName": "LLOCK"
         }
     ],
     "layouts": {

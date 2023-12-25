@@ -9,3 +9,4 @@
 
 #define COMBO_ONLY_FROM_LAYER 0
 #define SPLIT_LED_STATE_ENABLE
+#define LAYER_LOCK_IDLE_TIMEOUT 60000  // Turn off after 60 seconds.
