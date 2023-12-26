@@ -108,6 +108,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
             chordmod_t* chord = &_chordmod_defs[comboid];
             int key;
             if ((key = is_chordmod_key(chord, record)) != -1) {
+            backlight_toggle();
                 // pressed combo key
                 ret = false;
                 pressed_key(chord, key, keycode);
@@ -120,7 +121,9 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
             chordmod_t* chord = &_chordmod_defs[comboid];
             int key;
             if ((key = is_chordmod_key(chord, record)) != -1) {
-                ret = false;
+            backlight_toggle();
+                if (!chord->issued)
+                    ret = false;
                 released_key(chord, key, keycode);
                 break;
             }
@@ -133,7 +136,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
 void chordmods_task(void) {
     for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
         chordmod_t* chord = &_chordmod_defs[comboid];
-        if (!chord->issued && timer_elapsed32(chord->timer) > 500) {
+        if (!chord->issued && timer_elapsed32(chord->timer) > 5000) {
             if (chord->count>=2) {
                 chord->issued = true;
                 uint8_t mods = 0;
