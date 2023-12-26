@@ -1,5 +1,6 @@
 
 #include "chordmods.h"
+#include "print.h"
 
 typedef struct chordmod_t {
     int size;
@@ -25,10 +26,16 @@ chordmod_t _chordmod_defs[NR_CHORDMODS] = {
   {4, chordb, modsb, pressedb, 0, 0, false},
 };
 
-int is_chordmod_key(chordmod_t *chord, keyrecord_t* record) {
-    uint16_t keycode_layer = keymap_key_to_keycode(COMBO_ONLY_FROM_LAYER, record->event.key);
+int is_chordmod_key(chordmod_t *chord, uint16_t keycode, keyrecord_t* record) {
+    uint16_t keycode_layer = keycode;//keymap_key_to_keycode(COMBO_ONLY_FROM_LAYER, record->event.key);
+    #ifdef CONSOLE_ENABLE
+        uprintf("kc: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, keycode_layer, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+    #endif
     for (int i; i < chord->size; i++) {
         if (keycode_layer == chord->key[i]) {
+            #ifdef CONSOLE_ENABLE
+                uprintf("CHORD: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, keycode_layer, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+            #endif
             return i;
         }
     }
@@ -106,7 +113,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
         // pressed
         for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chordmod_t* chord = &_chordmod_defs[comboid];
-            int key_index = is_chordmod_key(chord, record);
+            int key_index = is_chordmod_key(chord, keycode, record);
             if (key_index != -1) {
                 tap_code16(KC_FIND);
                 // pressed combo key
@@ -119,7 +126,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
         // released
         for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chordmod_t* chord = &_chordmod_defs[comboid];
-            int key_index = is_chordmod_key(chord, record);
+            int key_index = is_chordmod_key(chord, keycode, record);
             if (key_index != -1) {
                 tap_code16(KC_CUT);
                 if (!chord->issued)
