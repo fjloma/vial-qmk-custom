@@ -80,7 +80,7 @@ bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
 
     case QK_TRI_LAYER_UPPER:
         if (layer_state_is(get_tri_layer_lower_layer()))
-            return handle_mo_or_tt(get_tri_layer_adjust_layer, record);
+            return handle_mo_or_tt(get_tri_layer_adjust_layer(), record);
         else
             return handle_mo_or_tt(get_tri_layer_upper_layer(), record);
 
