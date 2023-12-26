@@ -106,12 +106,12 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
         // pressed
         for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chordmod_t* chord = &_chordmod_defs[comboid];
-            int key;
-            if ((key = is_chordmod_key(chord, record)) != -1) {
-            backlight_toggle();
+            int key_index = is_chordmod_key(chord, record);
+            if (key_index != -1) {
+                tap_code16(KC_FIND);
                 // pressed combo key
                 ret = false;
-                pressed_key(chord, key, keycode);
+                pressed_key(chord, key_index, keycode);
                 break;
             }
         }
@@ -119,12 +119,12 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
         // released
         for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chordmod_t* chord = &_chordmod_defs[comboid];
-            int key;
-            if ((key = is_chordmod_key(chord, record)) != -1) {
-            backlight_toggle();
+            int key_index = is_chordmod_key(chord, record);
+            if (key_index != -1) {
+                tap_code16(KC_CUT);
                 if (!chord->issued)
                     ret = false;
-                released_key(chord, key, keycode);
+                released_key(chord, key_index, keycode);
                 break;
             }
         }
