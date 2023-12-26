@@ -83,7 +83,8 @@ void cancel_chord(chordmod_t *chord) {
         }
     }
 
-	set_mods(0);
+	if (chord->issued)
+	    set_mods(0);
 
     chord->issued = false;
     chord->timer = 0;
