@@ -29,8 +29,8 @@ enum layers {
 #define ESCM LT(5,KC_ESC)
 #define LNAV TL_LOWR
 #define LNUM TL_UPPR
-#define LSYMa MO(1)
-#define LSYMb MO(2)
+#define LSYMa MO(_SYMa)
+#define LSYMb MO(_SYMb)
 
 
 enum custom_keycode {
@@ -291,15 +291,18 @@ void matrix_scan_user(void) {
   }
 }
 
-/*
+
 void layer_lock_set_user(layer_state_t locked_layers) {
    if (locked_layers) {
-       layer_blink_timer = timer_read32();
+        right_blink = true;
+        left_blink = true;
+        layer_blink_timer = timer_read32();
    } else {
        layer_blink_timer = 0;
    }
 }
-*/
+
+
 layer_state_t layer_state_set_user (layer_state_t state) {
     right_blink = false;
     left_blink = false;

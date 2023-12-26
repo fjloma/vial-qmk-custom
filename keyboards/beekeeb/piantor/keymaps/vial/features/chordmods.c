@@ -61,6 +61,7 @@ void cancel_chord(chordmod_t *chord) {
     }
 
     chord->issued = false;
+    chord->timer = 0;
     chord->count = 0;
     uint8_t mods = 0;
     for (int i = 0; i < chord->size; i++) {
@@ -70,8 +71,7 @@ void cancel_chord(chordmod_t *chord) {
         }
     }
     unregister_mods(mods);
-    chord->timer = 0;
-    chord->issued = false;
+
 }
 
 void released_key(chordmod_t *chord, int key_index, uint16_t keycode) {
@@ -133,7 +133,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
 void chordmods_task(void) {
     for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
         chordmod_t* chord = &_chordmod_defs[comboid];
-        if (!chord->issued && timer_elapsed32(chord->timer) > COMBO_TERM) {
+        if (!chord->issued && timer_elapsed32(chord->timer) > 500) {
             if (chord->count>=2) {
                 chord->issued = true;
                 uint8_t mods = 0;
@@ -142,7 +142,7 @@ void chordmods_task(void) {
                     if (chord->pressed[i]) {
                         mods |= MOD_BIT(chord->pressed[i]);
                         c++;
-                        if (c==chord->size) break; // !! Discard last mod
+                        //if (c==chord->size) break; // !! Discard last mod
                     }
                 }
                 register_mods(mods);

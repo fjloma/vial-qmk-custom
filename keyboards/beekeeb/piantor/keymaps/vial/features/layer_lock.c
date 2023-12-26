@@ -72,6 +72,12 @@ bool process_layer_lock(uint16_t keycode, keyrecord_t* record,
     case QK_MOMENTARY ... QK_MOMENTARY_MAX:  // `MO(layer)` keys.
       return handle_mo_or_tt(QK_MOMENTARY_GET_LAYER(keycode), record);
 
+    case QK_TRI_LAYER_LOWER:
+        return handle_mo_or_tt(get_tri_layer_lower_layer(), record);
+
+    case QK_TRI_LAYER_UPPER:
+        return handle_mo_or_tt(get_tri_layer_upper_layer(), record);
+
     case QK_LAYER_TAP_TOGGLE ... QK_LAYER_TAP_TOGGLE_MAX:  // `TT(layer)`.
       return handle_mo_or_tt(QK_LAYER_TAP_TOGGLE_GET_LAYER(keycode), record);
 
