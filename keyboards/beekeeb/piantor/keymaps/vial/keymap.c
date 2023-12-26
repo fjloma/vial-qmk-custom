@@ -294,6 +294,7 @@ void layer_lock_set_user(layer_state_t locked_layers) {
         right_blink = true;
         left_blink = true;
         layer_blink_timer = timer_read32();
+        layer_blink_speed = 500 / locked_layers;
    } else {
        layer_blink_timer = 0;
    }
