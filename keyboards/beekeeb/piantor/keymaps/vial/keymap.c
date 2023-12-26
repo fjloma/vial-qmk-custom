@@ -261,14 +261,11 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         backlight_toggle();
 
     } else if (record->event.pressed && keycode == KC_SPC) {
-
-        if (shift) {
-            caps_word_toggle();
+        if (shift && !is_caps_word_on()) {
+            caps_word_on();
             return false;
         }
     }
-
-
 
 	return true;
 }
