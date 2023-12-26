@@ -302,8 +302,28 @@ void layer_lock_set_user(layer_state_t locked_layers) {
    }
 }
 
+bool caps_word_press_user(uint16_t keycode) {
+    switch (keycode) {
+        // Keycodes that continue Caps Word, with shift applied.
+        case KC_A ... KC_Z:
+        case KC_MINS:
+            add_weak_mods(MOD_BIT(KC_LSFT));  // Apply shift to next key.
+            return true;
 
-layer_state_t layer_state_set_user (layer_state_t state) {
+        // Keycodes that continue Caps Word, without shifting.
+        case KC_1 ... KC_0:
+        case KC_BSPC:
+        case KC_DEL:
+        case ES_UNDS:
+            return true;
+
+        default:
+            return false;  // Deactivate Caps Word.
+    }
+}
+
+
+/*layer_state_t layer_state_set_user (layer_state_t state) {
     right_blink = false;
     left_blink = false;
     layer_blink_timer = 0;
@@ -326,7 +346,7 @@ layer_state_t layer_state_set_user (layer_state_t state) {
         break;
   }
   return state;
-}
+}*/
 
 
 /*
