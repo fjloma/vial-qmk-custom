@@ -11,6 +11,7 @@
 
 
 #include "features/layer_lock.h"
+#include "features/chordmods.h"
 
 enum layers {
 	_COLEMAK,
@@ -208,6 +209,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 
+static bool shift = false;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 	if (!process_caps_word(keycode, record)) {
@@ -216,6 +218,10 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_layer_lock(keycode, record, LLOCK)) {
         return false;
     }
+
+	if (!chordmods_process(keycode, record)) {
+		return false;
+	}
 
 	switch (keycode) {
 		/*case KC_ESC:
@@ -247,14 +253,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	}
 
     // toggle caps word on shift+space
-    static bool shift = false;
+
     if (keycode == KC_RSFT) {
         shift = record->event.pressed;
+        backlight_toggle();
+        wait_ms(100);
+        backlight_toggle();
+
     } else if (record->event.pressed && keycode == KC_SPC) {
+
         if (shift) {
             caps_word_toggle();
+            return false;
         }
     }
+
+
 
 	return true;
 }
@@ -266,6 +280,7 @@ static bool right_blink = false;
 
 void matrix_scan_user(void) {
   layer_lock_task();
+  chordmods_task();
 
   if (is_keyboard_master() && left_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
     layer_blink_timer = timer_read32();
@@ -274,8 +289,8 @@ void matrix_scan_user(void) {
     layer_blink_timer = timer_read32();
     backlight_toggle();
   }
-
 }
+
 /*
 void layer_lock_set_user(layer_state_t locked_layers) {
    if (locked_layers) {
