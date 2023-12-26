@@ -26,7 +26,7 @@ enum layers {
 };
 
 #define ____ KC_TRNS
-#define ESCM LT(5,KC_ESC)
+#define ESCM LT(_MOUS,KC_ESC)
 #define LNAV TL_LOWR
 #define LNUM TL_UPPR
 #define LSYMa MO(_SYMa)
