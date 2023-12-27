@@ -73,16 +73,6 @@ void pressed_key(chordmod_t *chord, int key_index, uint16_t keycode) {
 }
 
 void cancel_chord(chordmod_t *chord) {
-    // released but not yet issued, tap it
-    if (!chord->issued && chord->count == 1) {
-        for (int i; i < chord->size; i++) {
-            if (chord->pressed[i]) {
-                tap_code16(chord->pressed[i]);
-                break;
-            }
-        }
-    }
-
 	if (chord->issued)
 	    set_mods(0);
 
@@ -99,10 +89,9 @@ void cancel_chord(chordmod_t *chord) {
 void released_key(chordmod_t *chord, int key_index, uint16_t keycode) {
 
     if (chord->pressed[key_index]) {
-        if (chord->issued) {
-        } else {
-            tap_code16(keycode);
-		}
+        if (!chord->issued) {
+            unregister_code(chord->pressed[key_index]);
+        }
 
         chord->count--;
         if (chord->count<0) chord->count = 0;
@@ -133,7 +122,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
 			#ifdef CONSOLE_ENABLE
                 uprintf("CHORD press: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, key_index, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
             #endif
-            
+
             if (key_index != -1) {
                 // pressed combo key
                 ret = false;
@@ -186,6 +175,15 @@ void chordmods_task(void) {
             } else {
                 // not enough keys after the combo term
                 // we cancel all and tap the last code
+                if (chord->count == 1) {
+                    for (int i; i < chord->size; i++) {
+                        if (chord->pressed[i]) {
+                            register_code(chord->pressed[i]);
+                        }
+                        break;
+                    }
+                }
+
                 cancel_chord(chord);
             }
         }
