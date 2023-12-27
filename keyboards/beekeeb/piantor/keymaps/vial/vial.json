@@ -8,15 +8,15 @@
     "customKeycodes": [
         {"name": "../",
             "title": "Parent dir",
-            "shortName": "B_DIRBACK"
+            "shortName": "DIRBACK"
         },
         {"name": "./",
             "title": "Current dir",
-            "shortname": "B_CURRDIR"
+            "shortname": "CURRDIR"
         },
         {"name": "->",
             "title": "Arrow",
-            "shortName": "B_ARROW"
+            "shortName": "ARROW"
         },
         {"name": "${_}",
             "title": "Groovy String",

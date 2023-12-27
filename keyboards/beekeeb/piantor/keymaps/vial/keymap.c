@@ -20,8 +20,6 @@ enum layers {
 	_MOUS, // NAV+NUM
 	_SYMa,
 	_SYMb,
-	_MODR,
-	_MODL,
 	_QWER
 };
 
@@ -34,17 +32,17 @@ enum layers {
 
 
 enum custom_keycode {
-    B_DIRBACK = QK_KB_0,
-    B_CURRDIR,
-    B_ARROW,
-    B_GROOVY_DOLLAR,
+    DIRBACK = QK_KB_0,
+    CURRDIR,
+    ARROW,
+    GROOVY_DOLLAR,
     LLOCK
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*  0 COLEMAK DH
       * ┌────┬────┬────┬────┬────┬────┐       ┌────┬────┬────┬────┬────┬────┐
-      * │EscM│ Q  │ W  │ F	│ P  │ B  │       │ J  │ L  │ U  │ Y  │Bsp │Del │
+      * │EscM│ Q  │ W  │ F  │ P  │ B  │       │ J  │ L  │ U  │ Y  │Bsp │Del │
       * ├────┼────┼────┼────┼────┼────┤       ├────┼────┼────┼────┼────┼────┤
       * │Tab │ A  │ R  │ S  │ T  │ G  │       │ M  │ N  │ E  │ I  │ O  │Ent │
       * ├────┼────┼────┼────┼────┼────┤       ├────┼────┼────┼────┼────┼────┤
@@ -112,7 +110,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       * ├────┼────┼────┼────┼────┼────┤     	├────┼────┼────┼────┼────┼────┤
       * │___ │___ │___ │___ │___ │___ │     	│W◁  │ ◁  │ ▽  │ ▷  │W▷  │M⏹  │
       * ├────┼────┼────┼────┼────┼────┤     	├────┼────┼────┼────┼────┼────┤
-      * │Lock│___ │ ⏸  │ ⏵  │ ⏮ │⏭	  │     	│___ │F13 │F14 │F15 │M⏵1 │M⏵2 │
+      * │Lock│___ │ ⏸  │ ⏵  │ ⏮ │⏭   │     	│___ │F13 │F14 │F15 │M⏵1 │M⏵2 │
       * └────┴────┴────┴────┴────┴────┘     	└────┴────┴────┴────┴────┴────┘
       *                ┌────┐         			          ┌────┐
       *                │mute├────┐     			     ┌────┤Acc2│
@@ -124,13 +122,13 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 		KC_F16, ____, ____, KC_F18, ____, ____, 				KC_F17, 	KC_WH_D, KC_MS_U, KC_WH_U, QK_DYNAMIC_MACRO_RECORD_START_1, QK_DYNAMIC_MACRO_RECORD_START_2,  \
 		____, ____, ____, ____, ____, ____, 				KC_WH_L,KC_MS_L, KC_MS_D, KC_MS_R, KC_WH_R, QK_DYNAMIC_MACRO_RECORD_STOP,  \
 		LLOCK, ____, KC_MSTP, KC_MPLY, KC_MRWD, KC_MFFD, 	____, KC_F13, KC_F14, KC_F15, 	QK_DYNAMIC_MACRO_PLAY_1, QK_DYNAMIC_MACRO_PLAY_2,  \
-							 KC_MUTE, KC_VOLD, KC_VOLU, 	KC_ACL0, KC_ACL2, KC_ACL1),
+							 KC_MUTE, KC_VOLD, KC_VOLU, 	KC_ACL0, KC_BTN2, KC_BTN1),
 
 
      /*
       *  SYMa
       * ┌────┬────┬────┬────┬────┬────┐       ┌────┬────┬────┬────┬────┬────┐
-      * │___ │ "  │ <  │ >	│ '  │ \  │       │___ │___ │ _  │ &  │___ │___ │
+      * │___ │ "  │ <  │ >  │ '  │ \  │       │___ │___ │ _  │ &  │___ │___ │
       * ├────┼────┼────┼────┼────┼────┤       ├────┼────┼────┼────┼────┼────┤
       * │___ │ !  │ -  │ +  │ =  │ #  │       │ ñ  │ (  │ {  │ [  │ |  │___ │
       * ├────┼────┼────┼────┼────┼────┤       ├────┼────┼────┼────┼────┼────┤
@@ -150,7 +148,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      /*
       *  SYMb
       * ┌────┬────┬────┬────┬────┬────┐       	┌────┬────┬────┬────┬────┬────┐
-      * │___ │ @  │___ │ `	│___ │../ │       	│___ │___ │ ¨  │___ │___ │___ │
+      * │___ │ @  │___ │ `  │___ │../ │       	│___ │___ │ ¨  │___ │___ │___ │
       * ├────┼────┼────┼────┼────┼────┤       	├────┼────┼────┼────┼────┼────┤
       * │___ │ ¡  │ -> │___ │___ │___ │       	│ Ñ  │___ │___ │ ª  │ º  │___ │
       * ├────┼────┼────┼────┼────┼────┤       	├────┼────┼────┼────┼────┼────┤
@@ -163,42 +161,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
       *                          └────┘       	└────┘
       */
 	[_SYMb] = LAYOUT_split_3x6_3( \
-		____,	ES_AT,		____,	ES_GRV, ____, 	B_DIRBACK, 					____,			____,	ES_DIAE, 	____, 			____, ____,  \
-		____,	ES_IEXL,	B_ARROW, ____, 	____, 	____, 						RSFT(ES_NTIL), 	____, 	____, 		RSFT(KC_GRV), 	KC_GRV, ____,  \
-		____, 	____, 		ES_PERC, ES_BULT, B_GROOVY_DOLLAR, ES_TILD, 		ES_IQUE, 		____, 	____, 		B_CURRDIR, 		____, ____,  \
+		____,	ES_AT,		____,	ES_GRV, ____, 	DIRBACK, 					____,			____,	ES_DIAE, 	____, 			____, ____,  \
+		____,	ES_IEXL,	ARROW, ____, 	____, 	____, 						RSFT(ES_NTIL), 	____, 	____, 		RSFT(KC_GRV), 	KC_GRV, ____,  \
+		____, 	____, 		ES_PERC, ES_BULT, GROOVY_DOLLAR, ES_TILD, 		ES_IQUE, 		____, 	____, 		CURRDIR, 		____, ____,  \
 										____, ____, ____, 						____, ____, ____),
-
-      /*
-	  *  Mod
-      * ┌───┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬───┐
-      * │___│___│___│___│___│___│       │___│___│___│___│___│___│
-      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
-      * │___│___│___│___│___│___│       │___│___│___│___│___│___│
-      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
-      * │___│___│___│___│___│___│       │Ctr│Gui│Gui│Alt│Sft│___│
-      * └───┴───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┴───┘
-      */
-	[_MODR] = LAYOUT_split_3x6_3( \
-		____, ____, ____, ____, ____, ____, 	____, ____, ____, ____, ____, ____, \
-		____, ____, ____, ____, ____, ____, 	____, ____, ____, ____, ____, ____, \
-		____, ____, ____, ____, ____, ____, 	KC_RCTL, KC_RGUI, KC_RGUI, KC_RALT, KC_RSFT, ____,  \
-					      ____, ____, ____, 	____, ____, ____),
-
-      /*
-	  *  Mod
-      * ┌───┬───┬───┬───┬───┬───┐       ┌───┬───┬───┬───┬───┬───┐
-      * │___│___│___│___│___│___│       │___│___│___│___│___│___│
-      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
-      * │___│___│___│___│___│___│       │___│___│___│___│___│___│
-      * ├───┼───┼───┼───┼───┼───┤       ├───┼───┼───┼───┼───┼───┤
-      * │___│Sft│Alt│Gui│Gui│Ctr│       │___│___│___│___│___│___│
-      * └───┴───┴───┴───┴───┴───┘       └───┴───┴───┴───┴───┴───┘
-      */
-	[_MODL] = LAYOUT_split_3x6_3( \
-		____, ____, ____, ____, ____, ____, 	____, ____, ____, ____, ____, ____, \
-		____, ____, ____, ____, ____, ____, 	____, ____, ____, ____, ____, ____, \
-		____, KC_LSFT, KC_LALT, KC_LGUI, KC_LGUI, KC_LCTL, 	____, ____, ____, ____, ____, ____,  \
-					      ____, ____, ____, 	____, ____, ____),
 
     [_QWER] = LAYOUT_split_3x6_3(
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,              KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_BSPC,
@@ -230,22 +196,22 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 layer_lock_all_off();
                 break;
         */
-		case B_DIRBACK:
+		case DIRBACK:
             if (record->event.pressed) {
                 SEND_STRING("../");
             }
             return false;
-		case B_CURRDIR:
+		case CURRDIR:
             if (record->event.pressed) {
                 SEND_STRING("./");
             }
             return false;
-        case B_ARROW:
+        case ARROW:
             if (record->event.pressed) {
                 SEND_STRING("->");
             }
             return false;
-        case B_GROOVY_DOLLAR:
+        case GROOVY_DOLLAR:
             if (record->event.pressed) {
                 SEND_STRING("${}" SS_TAP(X_LEFT));
             }

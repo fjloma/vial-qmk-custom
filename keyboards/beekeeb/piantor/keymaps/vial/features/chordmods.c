@@ -28,7 +28,7 @@ chordmod_t _chordmod_defs[NR_CHORDMODS] = {
 
 void update_mods(chordmod_t *chord) {
 	if (!chord->issued) return;
-	
+
 	set_mods(0);
 	uint8_t mods = 0;
 	int c = 0;
@@ -37,13 +37,13 @@ void update_mods(chordmod_t *chord) {
 #ifdef CONSOLE_ENABLE
 	//uprintf("CHORD release: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, keycode_layer, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
 	uprintf("CHORD mod  %d\n", i);
-#endif			
+#endif
 			mods |= MOD_BIT(chord->mod[i]);
 			c++;
 			if (c==chord->count-1) break; // !! Discard last mod
 		}
 	}
-	
+
 	register_mods(mods);
 }
 
