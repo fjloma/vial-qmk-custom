@@ -12,6 +12,12 @@ typedef struct chordmod_t {
     bool     issued;
 } chordmod_t;
 
+#ifdef CONSOLE_ENABLE
+void print_chord(chordmod_t* chord) {
+	uprintf("=CHORD%c timer(%ld) %ld, count %ld\n", chord->issued?'*':' ', chord->timer, timer_elapsed32(chord->timer), chord->count);
+}
+#endif
+
 #define NR_CHORDMODS 2
 uint16_t chorda[] = {KC_Z, KC_X, KC_C, KC_D, KC_V};
 uint16_t modsa[] = {KC_LEFT_SHIFT, KC_LEFT_ALT, KC_LEFT_GUI, KC_LEFT_CTRL, KC_LEFT_CTRL};
@@ -58,6 +64,10 @@ int is_chordmod_key(chordmod_t *chord, uint16_t keycode, keyrecord_t* record) {
 }
 
 void pressed_key(chordmod_t *chord, int key_index, uint16_t keycode) {
+	#ifdef CONSOLE_ENABLE
+		uprintf(">CHORD press %d: \n", key_index);
+		print_chord(chord);
+	#endif
 
     if (!chord->pressed[key_index]) {
         chord->count++;
@@ -70,9 +80,18 @@ void pressed_key(chordmod_t *chord, int key_index, uint16_t keycode) {
             chord->timer = timer_read32();
         }
     }
+	#ifdef CONSOLE_ENABLE
+		print_chord(chord);
+		uprintf("<CHORD press %d: \n", key_index);
+	#endif
 }
 
 void cancel_chord(chordmod_t *chord) {
+	#ifdef CONSOLE_ENABLE
+		uprintf(">CHORD cancel: \n");
+		print_chord(chord);
+	#endif
+
 	if (chord->issued)
 	    set_mods(0);
 
@@ -84,15 +103,20 @@ void cancel_chord(chordmod_t *chord) {
             chord->pressed[i] = 0;
         }
     }
+	#ifdef CONSOLE_ENABLE
+		print_chord(chord);
+		uprintf("<CHORD cancel: \n");
+	#endif
+
 }
 
 void released_key(chordmod_t *chord, int key_index, uint16_t keycode) {
+	#ifdef CONSOLE_ENABLE
+		uprintf(">CHORD release %d: \n", key_index);
+		print_chord(chord);
+	#endif
 
     if (chord->pressed[key_index]) {
-        if (!chord->issued) {
-            unregister_code(chord->pressed[key_index]);
-        }
-
         chord->count--;
         if (chord->count<0) chord->count = 0;
         chord->pressed[key_index] = 0;
@@ -104,10 +128,12 @@ void released_key(chordmod_t *chord, int key_index, uint16_t keycode) {
             } else {
 				update_mods(chord);
 			}
-        } else {
-            chord->timer = 0;
         }
     }
+	#ifdef CONSOLE_ENABLE
+		print_chord(chord);
+		uprintf("<CHORD release %d: \n", key_index);
+	#endif
 }
 
 
@@ -119,11 +145,12 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
         for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chordmod_t* chord = &_chordmod_defs[comboid];
             int key_index = is_chordmod_key(chord, keycode, record);
+
+            if (key_index != -1) {
 			#ifdef CONSOLE_ENABLE
                 uprintf("CHORD press: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, key_index, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
             #endif
 
-            if (key_index != -1) {
                 // pressed combo key
                 ret = false;
                 pressed_key(chord, key_index, keycode);
@@ -135,13 +162,31 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
         for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chordmod_t* chord = &_chordmod_defs[comboid];
             int key_index = is_chordmod_key(chord, keycode, record);
-			#ifdef CONSOLE_ENABLE
-                uprintf("CHORD release: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, key_index, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
-            #endif
 
             if (key_index != -1) {
-                if (!chord->issued)
-                    ret = false;
+			#ifdef CONSOLE_ENABLE
+                uprintf("CHORD%c release: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", chord->issued?'*':' ', keycode, key_index, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
+				print_chord(chord);
+            #endif
+
+                if (!chord->issued) {
+                    if (chord->timer) {
+						#ifdef CONSOLE_ENABLE
+							uprintf("CHORD%c tap %d\n", chord->issued?'*':' ', key_index);
+							print_chord(chord);
+						#endif
+						// the press is not timed out yet, so we do a tap
+						tap_code16(chord->pressed[key_index]);
+						ret = false;
+				    } else {
+						// not issued and not pending on timer, so we can let run the normal release key 
+						ret = true;
+					}
+				} else {
+					// chord was issued, so we eat the event and update the mods
+					ret = false;
+				}
+				chord->timer = 0;
                 released_key(chord, key_index, keycode);
                 break;
             }
@@ -169,23 +214,46 @@ bool check_chord_issued(chordmod_t *chord) {
 void chordmods_task(void) {
     for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
         chordmod_t* chord = &_chordmod_defs[comboid];
-        if (!chord->issued && timer_elapsed32(chord->timer) > 50) {
+        if (!chord->issued && chord->timer && timer_elapsed32(chord->timer) > 50) {
+			#ifdef CONSOLE_ENABLE
+                uprintf(">CHORD timer expired: combo_id %u, \n", comboid);
+                print_chord(chord);
+            #endif
+
+            chord->timer = 0;
             if (check_chord_issued(chord)) {
+			#ifdef CONSOLE_ENABLE
+                uprintf("CHORD timer issued: combo_id %u, \n", comboid);
+            #endif
+				
                 update_mods(chord);
             } else {
                 // not enough keys after the combo term
                 // we cancel all and tap the last code
                 if (chord->count == 1) {
-                    for (int i; i < chord->size; i++) {
+                    for (int i = 0; i < chord->size; i++) {
+			#ifdef CONSOLE_ENABLE
+                uprintf("%i,  %i pressed\n", i, chord->pressed[i]);
+            #endif						
                         if (chord->pressed[i]) {
                             register_code(chord->pressed[i]);
-                        }
+			#ifdef CONSOLE_ENABLE
+                uprintf("CHORD timer not issued: combo_id %i, register key %i press\n", comboid, i);
+            #endif
+            
                         break;
+                        }
                     }
                 }
 
                 cancel_chord(chord);
             }
+        
+			#ifdef CONSOLE_ENABLE
+                uprintf("<CHORD timer expired: combo_id %u, \n", comboid);
+                print_chord(chord);
+            #endif
+
         }
     }
 }
