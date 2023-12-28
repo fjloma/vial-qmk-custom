@@ -174,6 +174,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     )
 };
 
+bool user_keys(uint16_t keycode) {
+	switch (keycode) {
+		case ESCM:
+			clear_oneshot_mods();
+			caps_word_off();
+			layer_lock_all_off();
+            return false;
+		case DIRBACK:
+			SEND_STRING("../");
+            return false;
+		case CURRDIR:
+			SEND_STRING("./");
+            return false;
+        case ARROW:
+			SEND_STRING("->");
+            return false;
+        case GROOVY_DOLLAR:
+			SEND_STRING("${}" SS_TAP(X_LEFT));
+            return false;
+	}
+	return true;
+}
 
 static bool shift = false;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
@@ -188,38 +210,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	if (!chordmods_process(keycode, record)) {
 		return false;
 	}
-
-	switch (keycode) {
-		/*case KC_ESC:
-                clear_oneshot_mods();
-                caps_word_off();
-                layer_lock_all_off();
-                break;
-        */
-		case DIRBACK:
-            if (record->event.pressed) {
-                SEND_STRING("../");
-            }
-            return false;
-		case CURRDIR:
-            if (record->event.pressed) {
-                SEND_STRING("./");
-            }
-            return false;
-        case ARROW:
-            if (record->event.pressed) {
-                SEND_STRING("->");
-            }
-            return false;
-        case GROOVY_DOLLAR:
-            if (record->event.pressed) {
-                SEND_STRING("${}" SS_TAP(X_LEFT));
-            }
-            return false;
+	
+	if (record->event.pressed && !user_keys(keycode)) {
+		return false;
 	}
 
     // toggle caps word on shift+space
-
     if (keycode == KC_RSFT) {
         shift = record->event.pressed;
         backlight_toggle();
