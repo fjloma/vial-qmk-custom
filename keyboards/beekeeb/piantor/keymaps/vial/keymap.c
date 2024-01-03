@@ -14,9 +14,6 @@
 #include "features/chordmods.h"
 
 
-static uint32_t layer_blink_timer = 0;
-static uint32_t layer_blink_speed = 0;
-
 enum layers {
 	_COLEMAK,
 	_NAV,
@@ -187,16 +184,27 @@ bool user_keys(uint16_t keycode) {
 			layer_lock_all_off();
             return true;
 		case DIRBACK:
-			SEND_STRING("../");
+			//SEND_STRING("../");
+            tap_code16(ES_DOT);
+            tap_code16(ES_DOT);
+            tap_code16(ES_SLSH);
             return false;
 		case CURRDIR:
-			SEND_STRING("./");
+			//SEND_STRING("./");
+			tap_code16(ES_DOT);
+            tap_code16(ES_SLSH);
             return false;
         case ARROW:
-			SEND_STRING("->");
+			//SEND_STRING("->");
+			tap_code16(ES_MINS);
+            tap_code16(ES_RABK);
             return false;
         case GROOVY_DOLLAR:
-			SEND_STRING("${}" SS_TAP(X_LEFT));
+			//SEND_STRING("${}" SS_TAP(X_LEFT));
+			tap_code16(ES_DLR);
+            tap_code16(ES_LCBR);
+            tap_code16(ES_RCBR);
+            tap_code16(KC_LEFT);            
             return false;
 	}
 	return true;
@@ -243,45 +251,44 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 	return true;
 }
 
+
+typedef enum {
+	NONE,
+	ONE,
+	TWO,
+	THREE,
+	WAVE,
+	CAPS
+} blink_pattern_t;
+
+static uint16_t blink_patterns[] = {0b0, 0b11, 0b1100011, 0b110001100011, 0b10100010101, 0b001011110101000};
+static blink_pattern_t layer_blink_type = NONE;
+
 void matrix_scan_user(void) {
-
-  /*if (is_keyboard_master() && left_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
-    layer_blink_timer = timer_read32();
-    backlight_toggle();
-  } else if (!is_keyboard_master() && right_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
-    layer_blink_timer = timer_read32();
-    backlight_toggle();
-  }*/
-  
-  if (layer_blink_speed && timer_elapsed32(layer_blink_timer) > layer_blink_speed) {
-    layer_blink_timer = timer_read32();
-    backlight_step();
-  //} else {
-  //	  backlight_enable();
-  }
-  
-  layer_lock_task();
-  chordmods_task(CHORDMOD_TERM);
-
+	if (layer_blink_type == NONE) {
+		backlight_level(8);
+		//backlight_level(BACKLIGHT_LEVELS);
+	} else if (layer_blink_type == WAVE) {
+		uint32_t t = (timer_read32()/16)&0x3F;
+		if (t > 31) t = (63 - t);		 
+		backlight_level(t);
+	} else {
+		uint32_t t = (timer_read32()/40)&0xF;
+		uint32_t level = blink_patterns[layer_blink_type]&(1<<t);
+		backlight_level(level?0:BACKLIGHT_LEVELS);
+	}
+	
+	layer_lock_task();
+	chordmods_task(CHORDMOD_TERM);
 }
-
-
-/*void layer_lock_set_user(layer_state_t locked_layers) {
-   if (locked_layers) {
-        layer_blink_timer = timer_read32();
-        layer_blink_speed = 500 / locked_layers;
-   } else {
-       layer_blink_speed = 0;
-   }
-}*/
 
 void caps_word_set_user(bool active) {
     if (active) {
         // Do something when Caps Word activates.
-		layer_blink_speed = 8;
+		layer_blink_type = CAPS;
     } else {
         // Do something when Caps Word deactivates.
-		layer_blink_speed = 0;
+		layer_blink_type = NONE;
     }
 }
 
@@ -314,129 +321,22 @@ layer_state_t layer_state_set_user (layer_state_t state) {
     
     switch (get_highest_layer(state)) {
     case _NAV:
-        layer_blink_speed = 64;
+        layer_blink_type = ONE;
         break;
     case _NUM:
-        layer_blink_speed = 32;
+        layer_blink_type = TWO;
         break;
     case _MOUS:
-        layer_blink_speed = 16;
+        layer_blink_type = THREE;
+        break;
+    case _SYMa:
+    case _SYMb:
+        layer_blink_type = WAVE;
         break;
     case _COLEMAK:
     case _QWER:
-        layer_blink_speed = 0;
-        backlight_level(8);
+        layer_blink_type = NONE;
         break;    
   }
   return state;
 }
-
-
-/*
-enum combo_events {
-  ZX_SHF,
-  XC_ALT,
-  CD_GUI,
-  DV_CTRL,
-  Hc_GUI,//h,
-  cp_ALT, //,.
-  KH_CTRL
-};
-
-const uint16_t PROGMEM lsft_combo[] = {KC_Z, KC_X, COMBO_END};
-const uint16_t PROGMEM lalt_combo[] = {KC_X, KC_C, COMBO_END};
-const uint16_t PROGMEM lgui_combo[] = {KC_C, KC_D, COMBO_END};
-const uint16_t PROGMEM lctl_combo[] = {KC_D, KC_V, COMBO_END};
-
-const uint16_t PROGMEM rgui_combo[] = {KC_H, KC_COMM, COMBO_END};
-const uint16_t PROGMEM ralt_combo[] = {KC_COMM, KC_DOT, COMBO_END};
-const uint16_t PROGMEM rctl_combo[] = {KC_K, KC_H, COMBO_END};
-
-
-combo_t key_combos[] = {
-  [ZX_SHF] = COMBO_ACTION(lsft_combo),
-  [XC_ALT] = COMBO_ACTION(lalt_combo),
-  [CD_GUI] = COMBO_ACTION(lgui_combo),
-  [DV_CTRL] = COMBO_ACTION(lctl_combo),
-  [Hc_GUI] = COMBO_ACTION(rgui_combo),
-  [cp_ALT] = COMBO_ACTION(ralt_combo),
-  [KH_CTRL] = COMBO_ACTION(rctl_combo)
-};
-
-void process_combo_event(uint16_t combo_index, bool pressed){
-  switch(combo_index) {
-
-    case cp_ALT:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_RIGHT_ALT));
-	      layer_on(_MODR);
-      } else {
-		  unregister_mods(MOD_BIT(KC_RIGHT_ALT));
-		  layer_off(_MODR);
-	  }
-      break;
-
-    case Hc_GUI:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_RIGHT_GUI));
-	      layer_on(_MODR);
-      } else {
-		  unregister_mods(MOD_BIT(KC_RIGHT_GUI));
-		  layer_off(_MODR);
-	  }
-      break;
-
-    case KH_CTRL:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_RIGHT_CTRL));
-	      layer_on(_MODR);
-      } else {
-		  unregister_mods(MOD_BIT(KC_RIGHT_CTRL));
-		  layer_off(_MODR);
-	  }
-      break;
-
-
-
-    case ZX_SHF:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_LEFT_SHIFT));
-	      layer_on(_MODL);
-      } else {
-		  unregister_mods(MOD_BIT(KC_LEFT_SHIFT));
-	      layer_off(_MODL);
-	  }
-      break;
-
-    case XC_ALT:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_LEFT_ALT));
-	      layer_on(_MODL);
-      } else {
-		  unregister_mods(MOD_BIT(KC_LEFT_ALT));
-	      layer_off(_MODL);
-	  }
-      break;
-
-    case CD_GUI:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_LEFT_GUI));
-	      layer_on(_MODL);
-      } else {
-		  unregister_mods(MOD_BIT(KC_LEFT_GUI));
-	      layer_off(_MODL);
-	  }
-      break;
-
-    case DV_CTRL:
-      if (pressed) {
-	      register_mods(MOD_BIT(KC_LEFT_CTRL));
-	      layer_on(_MODL);
-      } else {
-		  unregister_mods(MOD_BIT(KC_LEFT_CTRL));
-	      layer_off(_MODL);
-	  }
-      break;
-  }
-}
-*/
