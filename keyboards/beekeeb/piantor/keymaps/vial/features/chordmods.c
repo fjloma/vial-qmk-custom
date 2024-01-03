@@ -161,7 +161,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
 	// only one chord can be active a time, search if one is active now
     int comboid = -1;
     for (int i = 0; i < NR_CHORDMODS; i++) {
-        if (_chordmod_defs[i].issued) {
+        if (_chordmod_defs[i].count) {
             comboid = i;
             break;
         }
@@ -170,9 +170,11 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
     chordmod_t* chord;
     int key_index;
     if (comboid != -1) {
+		// get the key imdex of the ongoing chord
 		chord = &_chordmod_defs[comboid];
 		key_index = is_chordmod_key(chord, keycode, record);
 	} else {
+		// no ongoing chord, see if the key matches one of them
         for (comboid = 0; comboid < NR_CHORDMODS; comboid++) {
             chord = &_chordmod_defs[comboid];
             key_index = is_chordmod_key(chord, keycode, record);
@@ -181,10 +183,14 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
 			}
 		}
 	}
-	if (key_index == -1)
-		return true; // not a chord key or a key from an not active chord
-
-    if (record->event.pressed) {
+	
+	if (key_index == -1) {
+		// not a chord key or a key from an not active chord
+		if (comboid != -1)
+			chordmods_task(0);
+		ret = true; 
+	
+	} else if (record->event.pressed) {
         // pressed
 		#ifdef CONSOLE_ENABLE
 			uprintf("CHORD press: 0x%04X 0x%04X, col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u\n", keycode, key_index, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count);
@@ -201,7 +207,7 @@ bool chordmods_process(uint16_t keycode, keyrecord_t* record) {
 		#endif
 
 		if (!chord->issued) {
-			if (chord->timer && chord->pressed[key_index]) {
+			if (chord->pressed[key_index]) {
 				#ifdef CONSOLE_ENABLE
 					uprintf("CHORD%c tap %d\n", chord->issued?'*':' ', key_index);
 					print_chord(chord);
@@ -238,10 +244,10 @@ bool check_chord_issued(chordmod_t *chord) {
 	return chord->issued;
 }
 
-void chordmods_task(void) {
+void chordmods_task(uint32_t term) {
     for (int comboid = 0; comboid < NR_CHORDMODS; comboid++) {
         chordmod_t* chord = &_chordmod_defs[comboid];
-        if (!chord->issued && chord->timer && timer_elapsed32(chord->timer) > 50) {
+        if (!chord->issued && chord->timer && timer_elapsed32(chord->timer) > term) {
 			#ifdef CONSOLE_ENABLE
                 uprintf(">CHORD timer expired: combo_id %u, \n", comboid);
                 print_chord(chord);

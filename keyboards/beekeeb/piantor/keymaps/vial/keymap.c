@@ -13,6 +13,10 @@
 #include "features/layer_lock.h"
 #include "features/chordmods.h"
 
+
+static uint32_t layer_blink_timer = 0;
+static uint32_t layer_blink_speed = 0;
+
 enum layers {
 	_COLEMAK,
 	_NAV,
@@ -177,10 +181,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 bool user_keys(uint16_t keycode) {
 	switch (keycode) {
 		case ESCM:
+		case KC_ESC:
 			clear_oneshot_mods();
 			caps_word_off();
 			layer_lock_all_off();
-            return false;
+            return true;
 		case DIRBACK:
 			SEND_STRING("../");
             return false;
@@ -199,6 +204,9 @@ bool user_keys(uint16_t keycode) {
 
 static bool shift = false;
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+	#ifdef CONSOLE_ENABLE
+		uprintf("press: 0x%04X col: %2u, row: %2u, pressed: %u, time: %5u, int: %u, count: %u %s\n", keycode, record->event.key.col, record->event.key.row, record->event.pressed, record->event.time, record->tap.interrupted, record->tap.count, shift?"shift":"");
+	#endif
 
 	if (!process_caps_word(keycode, record)) {
 		return false;
@@ -215,51 +223,66 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 		return false;
 	}
 
-    // toggle caps word on shift+space
-    if (keycode == KC_RSFT) {
-        shift = record->event.pressed;
-        backlight_toggle();
-        wait_ms(100);
-        backlight_toggle();
-
-    } else if (record->event.pressed && keycode == KC_SPC) {
-        if (shift && !is_caps_word_on()) {
-            caps_word_on();
-            return false;
-        }
-    }
+	if (!is_caps_word_on()) {
+		// toggle caps word on shift+space
+		if (record->event.pressed && keycode == KC_RSFT) {
+			shift = true;
+		} else if (!record->event.pressed && keycode == KC_RSFT) {
+			shift = false;
+		} else if (shift && keycode == KC_SPC && !is_caps_word_on()) {
+			if (record->event.pressed ) {
+				caps_word_on();
+			}
+			shift = false;
+			return false;
+		}
+	} else {
+		shift = false;		
+	}
 
 	return true;
 }
 
-static uint32_t layer_blink_timer = 0;
-static uint32_t layer_blink_speed = 500;
-static bool left_blink = false;
-static bool right_blink = false;
-
 void matrix_scan_user(void) {
-  layer_lock_task();
-  chordmods_task();
 
-  if (is_keyboard_master() && left_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
+  /*if (is_keyboard_master() && left_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
     layer_blink_timer = timer_read32();
     backlight_toggle();
   } else if (!is_keyboard_master() && right_blink && layer_blink_timer && timer_elapsed32(layer_blink_timer) > layer_blink_speed){
     layer_blink_timer = timer_read32();
     backlight_toggle();
+  }*/
+  
+  if (layer_blink_speed && timer_elapsed32(layer_blink_timer) > layer_blink_speed) {
+    layer_blink_timer = timer_read32();
+    backlight_step();
+  //} else {
+  //	  backlight_enable();
   }
+  
+  layer_lock_task();
+  chordmods_task(CHORDMOD_TERM);
+
 }
 
 
-void layer_lock_set_user(layer_state_t locked_layers) {
+/*void layer_lock_set_user(layer_state_t locked_layers) {
    if (locked_layers) {
-        right_blink = true;
-        left_blink = true;
         layer_blink_timer = timer_read32();
         layer_blink_speed = 500 / locked_layers;
    } else {
-       layer_blink_timer = 0;
+       layer_blink_speed = 0;
    }
+}*/
+
+void caps_word_set_user(bool active) {
+    if (active) {
+        // Do something when Caps Word activates.
+		layer_blink_speed = 8;
+    } else {
+        // Do something when Caps Word deactivates.
+		layer_blink_speed = 0;
+    }
 }
 
 bool caps_word_press_user(uint16_t keycode) {
@@ -283,30 +306,30 @@ bool caps_word_press_user(uint16_t keycode) {
 }
 
 
-/*layer_state_t layer_state_set_user (layer_state_t state) {
-    right_blink = false;
-    left_blink = false;
-    layer_blink_timer = 0;
-
+layer_state_t layer_state_set_user (layer_state_t state) {
+	/*if (is_caps_word_on()) return;
+	
+    layer_blink_timer = timer_read32();
+    layer_blink_speed = 0;*/
+    
     switch (get_highest_layer(state)) {
     case _NAV:
-        right_blink = true;
-        left_blink = false;
-        layer_blink_timer = timer_read32();
+        layer_blink_speed = 64;
         break;
     case _NUM:
-        right_blink = false;
-        left_blink = true;
-        layer_blink_timer = timer_read32();
+        layer_blink_speed = 32;
         break;
     case _MOUS:
-        right_blink = true;
-        left_blink = true;
-        layer_blink_timer = timer_read32();
+        layer_blink_speed = 16;
         break;
+    case _COLEMAK:
+    case _QWER:
+        layer_blink_speed = 0;
+        backlight_level(8);
+        break;    
   }
   return state;
-}*/
+}
 
 
 /*
